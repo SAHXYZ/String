@@ -77,7 +77,8 @@ async def session_cmd(_, msg):
         await msg.reply(f"❌ Error: `{e}`")
 
 
-# 🔥 AUTO-ACTIVATE LOG GROUP ON STARTUP (important fix)
+
+# 🔥 AUTO-ACTIVATE LOG GROUP ON STARTUP (fixes group logging without /start)
 async def activate_log_chat():
     try:
         await bot.send_chat_action(LOG_GROUP_ID, "typing")
@@ -85,8 +86,6 @@ async def activate_log_chat():
     except Exception as e:
         print(f"Log group activation failed → {e}")
 
-
-# Required for auto activation
 bot.start()
 bot.loop.create_task(activate_log_chat())
-bot.idle()
+bot.run()
