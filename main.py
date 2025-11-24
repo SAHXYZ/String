@@ -71,3 +71,4 @@ async def session_cmd(_, msg):
 
     except Exception as e:
         await msg.reply(f"❌ Error: `{e}`")
+bot.run()
